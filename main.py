@@ -59,33 +59,6 @@ async def startprivate(client, message):
     await message.reply_text(welcomed, reply_markup=joinButton)
     raise StopPropagation
 
-@Bot.on_message(filters.command("love") & filters.private)
-async def startprivate(client, message):
-    # return
-    chat_id = message.from_user.id
-    if not await db.is_user_exist(chat_id):
-        data = await client.get_me()
-        BOT_USERNAME = data.username
-        await db.add_user(chat_id)
-        if LOG_CHANNEL:
-            await client.send_message(
-                LOG_CHANNEL,
-                f"#NEWUSER: \n\nNew User [{message.from_user.first_name}](tg://user?id={message.from_user.id}) started @{BOT_USERNAME} !!",
-            )
-        else:
-            logging.info(f"#NewUser :- Name : {message.from_user.first_name} ID : {message.from_user.id}")
-    joinButton = InlineKeyboardMarkup(
-        [
-            [
-                InlineKeyboardButton("CHANNEL", url="https://t.me/kdkkd"),
-                InlineKeyboardButton(
-                    "SUPPORT GROUP", url="https://t.me/skkdksd"
-                ),
-            ]
-        ]
-    )
-
-
 @Bot.on_message(filters.command("settings"))
 async def opensettings(bot, cmd):
     user_id = cmd.from_user.id
@@ -103,6 +76,25 @@ async def opensettings(bot, cmd):
             ]
         ),
     )
+
+@Bot.on_message(filters.command("love"))
+async def love(bot, cmd):
+    user_id = cmd.from_user.id
+    await cmd.reply_text(
+        f"`Here You Can Set Your Settings:`\n\nSuccessfully setted notifications to **{await db.get_notif(user_id)}**",
+        reply_markup=InlineKeyboardMarkup(
+            [
+                [
+                    InlineKeyboardButton(
+                        f"NOTIFICATION  {'🔔' if ((await db.get_notif(user_id)) is True) else '🔕'}",
+                        callback_data="notifon",
+                    )
+                ],
+                [InlineKeyboardButton("❎", url="closeMeh")],
+            ]
+        ),
+    )
+
 
 
 @Bot.on_message(filters.private & filters.command("broadcast"))
