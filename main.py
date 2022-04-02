@@ -59,6 +59,32 @@ async def startprivate(client, message):
     await message.reply_text(welcomed, reply_markup=joinButton)
     raise StopPropagation
 
+@Bot.on_message(filters.command("love") & filters.private)
+async def startprivate(client, message):
+    # return
+    chat_id = message.from_user.id
+    if not await db.is_user_exist(chat_id):
+        data = await client.get_me()
+        BOT_USERNAME = data.username
+        await db.add_user(chat_id)
+        if LOG_CHANNEL:
+            await client.send_message(
+                LOG_CHANNEL,
+                f"#NEWUSER: \n\nNew User [{message.from_user.first_name}](tg://user?id={message.from_user.id}) started @{BOT_USERNAME} !!",
+            )
+        else:
+            logging.info(f"#NewUser :- Name : {message.from_user.first_name} ID : {message.from_user.id}")
+    joinButton = InlineKeyboardMarkup(
+        [
+            [
+                InlineKeyboardButton("CHANNEL", url="https://t.me/kdkkd"),
+                InlineKeyboardButton(
+                    "SUPPORT GROUP", url="https://t.me/skkdksd"
+                ),
+            ]
+        ]
+    )
+
 
 @Bot.on_message(filters.command("settings"))
 async def opensettings(bot, cmd):
@@ -236,18 +262,5 @@ async def callback_handlers(bot: Client, cb: CallbackQuery):
 async def _(bot, cmd):
     await handle_user_status(bot, cmd)
 
-@Bot.on_message(filters.command("love") & filters.private)
-async def startprivate(client, message):
-    # return
-    chat_id = message.from_user.id
-    if not await db.is_user_exist(chat_id):
-        data = await client.get_me()
-        BOT_USERNAME = data.username
-        await db.add_user(chat_id)
-        if LOG_CHANNEL:
-            await client.send_message(
-                LOG_CHANNEL,
-                f"#NEWUSER: \n\nNew User [{message.from_user.first_name}](tg://user?id={message.from_user.id}) started @{BOT_USERNAME} !!",
-            )
 
 Bot.run()
